@@ -12,7 +12,7 @@ if os.path.exists(MODEL_PATH):
     with open(MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
 
-# HTML template with a modern, attractive UI (Tailwind CSS)
+# HTML template with JoiningYear added
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -22,9 +22,7 @@ HTML_TEMPLATE = """
     <title>Gaussian Naive Bayes Predictor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen text-slate-100 flex items-center justify-center p-4">
 
@@ -49,6 +47,12 @@ HTML_TEMPLATE = """
                         <option value="Masters">Masters</option>
                         <option value="PHD">PHD</option>
                     </select>
+                </div>
+
+                <!-- JoiningYear -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-300">Joining Year</label>
+                    <input type="number" name="JoiningYear" min="2012" max="2026" required placeholder="e.g. 2017" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
                 </div>
 
                 <!-- City -->
@@ -100,7 +104,7 @@ HTML_TEMPLATE = """
                 </div>
 
                 <!-- ExperienceInCurrentDomain -->
-                <div class="space-y-2 md:col-span-2">
+                <div class="space-y-2">
                     <label class="block text-sm font-medium text-slate-300">Experience In Current Domain (Years)</label>
                     <input type="number" name="ExperienceInCurrentDomain" min="0" max="30" required placeholder="e.g. 3" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
                 </div>
@@ -114,7 +118,6 @@ HTML_TEMPLATE = """
             </form>
         </div>
     </div>
-
 </body>
 </html>
 """
@@ -156,6 +159,7 @@ def home():
 def predict():
     try:
         education = request.form.get('Education')
+        joining_year = float(request.form.get('JoiningYear'))  # Added JoiningYear
         city = request.form.get('City')
         payment_tier = float(request.form.get('PaymentTier'))
         age = float(request.form.get('Age'))
@@ -166,6 +170,7 @@ def predict():
         if model is not None:
             input_df = pd.DataFrame([{
                 'Education': education,
+                'JoiningYear': joining_year,  # Included in dataframe
                 'City': city,
                 'PaymentTier': payment_tier,
                 'Age': age,
