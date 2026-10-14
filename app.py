@@ -158,19 +158,25 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        education = request.form.get('Education')
-        joining_year = float(request.form.get('JoiningYear'))  # Added JoiningYear
-        city = request.form.get('City')
+        # Map categorical selections to numbers (standard Label Encoding format)
+        education_map = {'Bachelors': 0, 'Masters': 1, 'PHD': 2}
+        city_map = {'Bangalore': 0, 'Pune': 1, 'New Delhi': 2}
+        gender_map = {'Male': 0, 'Female': 1}
+        benched_map = {'No': 0, 'Yes': 1}
+
+        education = education_map.get(request.form.get('Education'), 0)
+        joining_year = float(request.form.get('JoiningYear'))
+        city = city_map.get(request.form.get('City'), 0)
         payment_tier = float(request.form.get('PaymentTier'))
         age = float(request.form.get('Age'))
-        gender = request.form.get('Gender')
-        ever_benched = request.form.get('EverBenched')
+        gender = gender_map.get(request.form.get('Gender'), 0)
+        ever_benched = benched_map.get(request.form.get('EverBenched'), 0)
         exp_domain = float(request.form.get('ExperienceInCurrentDomain'))
 
         if model is not None:
             input_df = pd.DataFrame([{
                 'Education': education,
-                'JoiningYear': joining_year,  # Included in dataframe
+                'JoiningYear': joining_year,
                 'City': city,
                 'PaymentTier': payment_tier,
                 'Age': age,
@@ -178,7 +184,9 @@ def predict():
                 'EverBenched': ever_benched,
                 'ExperienceInCurrentDomain': exp_domain
             }])
-            pred = model.predict(input_df)[0]
+            
+            # Using .to_numpy() to safely avoid both feature name and data type errors
+            pred = model.predict(input_df.to_numpy())[0]
             pred_text = f"{pred}"
         else:
             pred_text = "Model (naive.pkl) not found."
